@@ -1,0 +1,37 @@
+name: Python CI/CD
+
+on:
+  push:
+    branches:
+      - chapter2
+  pull_request:
+    branches:
+      - chapter2
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Run test
+        run: |
+          echo "def test_sample(): assert 1+1==2" > test_app.py
+          pytest
+
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy
+        run: echo "배포 완료"
