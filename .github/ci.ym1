@@ -1,0 +1,36 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    # master를 main로 바꿉니다. (지금 작업 중인 브랜치 이름)
+    branches: [ main ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Generate version
+        id: version
+        [cite_start]run: echo "version=$(date +'%Y%m%d_%H%M%S')-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT [cite: 235, 410]
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        [cite_start]uses: aws-actions/amazon-ecr-login@v2 [cite: 441, 443]
+
+      - name: Build and push Docker image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: sample-server # AWS ECR에 만든 이름과 같아야 함
+          IMAGE_TAG: ${{ steps.version.outputs.version }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG [cite: 67, 70]

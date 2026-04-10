@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  # 웹 서버 서비스 설정 [cite: 559, 574]
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  # 데이터베이스 서비스 설정 [cite: 514, 560]
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: sample_db
+      
